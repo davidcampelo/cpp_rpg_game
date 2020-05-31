@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string>
 
 #include <spdlog/spdlog.h>
 #include <imgui.h>
@@ -56,18 +57,21 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
   ImGui::GetStyle().ScaleAllSizes(scale_factor);
   ImGui::GetIO().FontGlobalScale = scale_factor;
 
-  bool state[]{ 
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    true
+  constexpr int NUMBER = 11;
+  std::array<bool, NUMBER> states{};
+
+  const std::string steps[]{
+    "The Plan",
+    "Getting Started",
+    "C++ 20 So Far",
+    "Reading SFML Input States",
+    "Managing Game State",
+    "Making Our Game Testable",
+    "Making Game State Allocator Aware",
+    "Add Logging To Game Engine",
+    "Draw A Game Map",
+    "Dialog Trees",
+    "Porting From SFML To SDL"
   };
 
   sf::Clock deltaClock;
@@ -82,21 +86,16 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
     }
 
     ImGui::SFML::Update(window, deltaClock.restart());
-
-
+    
     ImGui::Begin("The Plan");
 
-   ImGui::Checkbox("0 : The Plan", &state[0]);
-   ImGui::Checkbox("1 : Getting Started", &state[1]);
-   ImGui::Checkbox("2 : C++ 20 So Far", &state[2]);
-   ImGui::Checkbox("3 : Reading SFML Input States", &state[3]);
-   ImGui::Checkbox("4 : Managing Game State", &state[4]);
-   ImGui::Checkbox("5 : Making Our Game Testable", &state[5]);
-   ImGui::Checkbox("6 : Making Game State Allocator Aware", &state[6]);
-   ImGui::Checkbox("7 : Add Logging To Game Engine", &state[7]);
-   ImGui::Checkbox("8 : Draw A Game Map", &state[8]);
-   ImGui::Checkbox("9 : Dialog Trees", &state[9]);
-   ImGui::Checkbox("10 : Porting From SFML To SDL", &state[10]);
+    int index = 0;
+    for (const auto &step : steps) {
+      ImGui::Checkbox(fmt::format("{}: {}", index, step).c_str(), 
+                      std::next(states.begin(), index)
+      );
+      ++index;
+    }
 
     ImGui::End();
 
