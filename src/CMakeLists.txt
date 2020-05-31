@@ -1,5 +1,8 @@
+
 # Generic test that uses conan libs
-add_executable(intro main.cpp)
+add_executable(game main.cpp)
 target_link_libraries(
-  intro PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp
-                CONAN_PKG::fmt CONAN_PKG::spdlog CONAN_PKG::imgui-sfml)
+  game PRIVATE project_options project_warnings CONAN_PKG::docopt.cpp
+  CONAN_PKG::fmt CONAN_PKG::spdlog CONAN_PKG::imgui-sfml)
+
+

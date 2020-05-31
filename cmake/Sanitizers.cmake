@@ -9,9 +9,8 @@ function(enable_sanitizers project_name)
       target_link_libraries(project_options INTERFACE --coverage)
     endif()
 
-    set(SANITIZERS "")
-
     option(ENABLE_SANITIZER_ADDRESS "Enable address sanitizer" FALSE)
+    set(SANITIZERS "")
     if(ENABLE_SANITIZER_ADDRESS)
       list(APPEND SANITIZERS "address")
     endif()

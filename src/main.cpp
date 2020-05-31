@@ -1,20 +1,16 @@
-#include <functional>
 #include <iostream>
 
 #include <spdlog/spdlog.h>
-
-
-#include <docopt/docopt.h>
-
-#include <iostream>
-
 #include <imgui.h>
 #include <imgui-SFML.h>
-
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
+
+
+#include <docopt/docopt.h>
+
 
 static constexpr auto USAGE =
   R"(Naval Fate.
@@ -34,16 +30,16 @@ static constexpr auto USAGE =
           --drifting    Drifting mine.
 )";
 
-int main(int argc, const char **argv)
+int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 {
-  std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
-    { std::next(argv), std::next(argv, argc) },
-    true,// show help if requested
-    "Naval Fate 2.0");// version string
+  //  std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
+  //    { std::next(argv), std::next(argv, argc) },
+  //    true,// show help if requested
+  //    "Naval Fate 2.0");// version string
 
-  for (auto const &arg : args) {
-    std::cout << arg.first << arg.second << std::endl;
-  }
+  //  for (auto const &arg : args) {
+  //    std::cout << arg.first << arg.second << std::endl;
+  //  }
 
 
   //Use the default logger (stdout, multi-threaded, colored)
@@ -52,13 +48,27 @@ int main(int argc, const char **argv)
   fmt::print("Hello, from {}\n", "{fmt}");
 
 
-
-  sf::RenderWindow window(sf::VideoMode(640, 480), "ImGui + SFML = <3");
+  sf::RenderWindow window(sf::VideoMode(1024, 768), "ImGui + SFML = <3");
   window.setFramerateLimit(60);
   ImGui::SFML::Init(window);
 
-  sf::CircleShape shape(100.f);
-  shape.setFillColor(sf::Color::Green);
+  constexpr auto scale_factor = 2.0;
+  ImGui::GetStyle().ScaleAllSizes(scale_factor);
+  ImGui::GetIO().FontGlobalScale = scale_factor;
+
+  bool state[]{ 
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true
+  };
 
   sf::Clock deltaClock;
   while (window.isOpen()) {
@@ -73,14 +83,24 @@ int main(int argc, const char **argv)
 
     ImGui::SFML::Update(window, deltaClock.restart());
 
-//    ImGui::ShowDemoWindow();
 
-    ImGui::Begin("Hello, world!");
-    ImGui::Button("Look at this pretty button");
+    ImGui::Begin("The Plan");
+
+   ImGui::Checkbox("0 : The Plan", &state[0]);
+   ImGui::Checkbox("1 : Getting Started", &state[1]);
+   ImGui::Checkbox("2 : C++ 20 So Far", &state[2]);
+   ImGui::Checkbox("3 : Reading SFML Input States", &state[3]);
+   ImGui::Checkbox("4 : Managing Game State", &state[4]);
+   ImGui::Checkbox("5 : Making Our Game Testable", &state[5]);
+   ImGui::Checkbox("6 : Making Game State Allocator Aware", &state[6]);
+   ImGui::Checkbox("7 : Add Logging To Game Engine", &state[7]);
+   ImGui::Checkbox("8 : Draw A Game Map", &state[8]);
+   ImGui::Checkbox("9 : Dialog Trees", &state[9]);
+   ImGui::Checkbox("10 : Porting From SFML To SDL", &state[10]);
+
     ImGui::End();
 
     window.clear();
-    window.draw(shape);
     ImGui::SFML::Render(window);
     window.display();
   }
@@ -88,7 +108,4 @@ int main(int argc, const char **argv)
   ImGui::SFML::Shutdown();
 
   return 0;
-
-
-
 }
