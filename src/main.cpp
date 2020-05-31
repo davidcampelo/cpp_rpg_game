@@ -12,7 +12,7 @@
 
 #include <docopt/docopt.h>
 
-
+/*
 static constexpr auto USAGE =
   R"(Naval Fate.
 
@@ -30,6 +30,7 @@ static constexpr auto USAGE =
           --moored      Moored (anchored) mine.
           --drifting    Drifting mine.
 )";
+*/
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 {
@@ -43,10 +44,8 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
   //  }
 
 
-  //Use the default logger (stdout, multi-threaded, colored)
+  // Use the default logger (stdout, multi-threaded, colored)
   spdlog::info("Hello, {}!", "World");
-
-  fmt::print("Hello, from {}\n", "{fmt}");
 
 
   sf::RenderWindow window(sf::VideoMode(1024, 768), "ImGui + SFML = <3");
@@ -60,8 +59,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
   constexpr int NUMBER = 11;
   std::array<bool, NUMBER> states{};
 
-  const std::string steps[]{
-    "The Plan",
+  const std::array<std::string, NUMBER> steps{ "The Plan",
     "Getting Started",
     "C++ 20 So Far",
     "Reading SFML Input States",
@@ -71,8 +69,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
     "Add Logging To Game Engine",
     "Draw A Game Map",
     "Dialog Trees",
-    "Porting From SFML To SDL"
-  };
+    "Porting From SFML To SDL" };
 
   sf::Clock deltaClock;
   while (window.isOpen()) {
@@ -80,22 +77,20 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
     while (window.pollEvent(event)) {
       ImGui::SFML::ProcessEvent(event);
 
-      if (event.type == sf::Event::Closed) {
-        window.close();
-      }
+      if (event.type == sf::Event::Closed) { window.close(); }
     }
 
     ImGui::SFML::Update(window, deltaClock.restart());
-    
+
+
     ImGui::Begin("The Plan");
 
     int index = 0;
     for (const auto &step : steps) {
-      ImGui::Checkbox(fmt::format("{}: {}", index, step).c_str(), 
-                      std::next(states.begin(), index)
-      );
+      ImGui::Checkbox(fmt::format("{}: {}", index, step).c_str(), std::next(states.begin(), index));
       ++index;
     }
+
 
     ImGui::End();
 

@@ -20,3 +20,6 @@ sudo apt install libxrandr-dev
 sudo apt install libudev-dev
 - C Compiler Cache
 sudo apt install ccache
+- Clang tool
+sudo apt install clang-format
+sudo apt install clang-tidy
