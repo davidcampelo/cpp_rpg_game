@@ -18,3 +18,5 @@ sudo ln -s ~/.local/bin/conan /usr/local/bin/conan
 sudo apt install libxrandr-dev
 - libudev development files
 sudo apt install libudev-dev
+- C Compiler Cache
+sudo apt install ccache
