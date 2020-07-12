@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <array>
 
 #include <spdlog/spdlog.h>
 #include <imgui.h>
@@ -12,6 +13,9 @@
 
 #include <docopt/docopt.h>
 
+static constexpr auto WINDOW_FRAME_RATE = 60;
+static constexpr auto MIN_SCALE_FACTOR = 1;
+static constexpr auto MAX_SCALE_FACTOR = 5;
 static constexpr auto USAGE =
   R"(RPG Game
 
@@ -25,18 +29,47 @@ static constexpr auto USAGE =
           --scale=SCALE     Scaling factor [default: 2].
 )";
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
+
+struct Joystick
+{
+  unsigned int id;
+  std::string name;
+  std::array<bool, sf::Joystick::ButtonCount> buttonState;
+  std::array<float, sf::Joystick::AxisCount> axisPosition;
+};
+
+
+Joystick loadJoystick(unsigned int id)
+{
+  const auto identification = sf::Joystick::getIdentification(id);
+  return Joystick{ id, static_cast<std::string>(identification.name), {}, {} };
+}
+
+
+Joystick &joystickById(std::vector<Joystick> &joysticks, unsigned int id)
+{
+  auto joystick = std::find_if(begin(joysticks), end(joysticks), [id](const auto &j) { return j.id == id; });
+
+  if (joystick == joysticks.end()) {
+    joysticks.push_back(loadJoystick(id));
+    return joysticks.back();
+  } else {
+    return *joystick;
+  }
+}
+
+int main(int argc, const char **argv)
 {
   std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
     { std::next(argv), std::next(argv, argc) },
     true,// show help if requested
-    "Game 0.0");// version string
+    "Game 0.4");// version string
 
   const auto width = args["--width"].asLong();
   const auto height = args["--height"].asLong();
   const auto scale = args["--scale"].asLong();
 
-  if (width < 0 || height < 0 || scale < 1 || scale > 5) {
+  if (width < 0 || height < 0 || scale < MIN_SCALE_FACTOR || scale > MAX_SCALE_FACTOR) {
     spdlog::error("Command line options are out of reasonable range.");
     for (auto const &arg : args) {
       if (arg.second.isString()) { spdlog::info("Parameter set: {}='{}'", arg.first, arg.second.asString()); }
@@ -45,13 +78,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
   }
 
 
+  spdlog::set_level(spdlog::level::debug);
   // Use the default logger (stdout, multi-threaded, colored)
-  spdlog::info("Hello, {}!", "World");
+  spdlog::info("Hello, {}!", "World42");
 
 
   sf::RenderWindow window(
     sf::VideoMode(static_cast<unsigned int>(width), static_cast<unsigned int>(height)), "RPG Game");
-  window.setFramerateLimit(60);
+  window.setFramerateLimit(WINDOW_FRAME_RATE);
   ImGui::SFML::Init(window);
 
   const auto scale_factor = static_cast<float>(scale);
@@ -62,8 +96,11 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
     "Getting Started",
     "Finding Errors As Soon As Possible",
     "Handling Command Line Parameters",
+    "Reading SFML Joystick States",
+    "Reading SFML Keyboard States",
+    "Reading SFML Mouse States",
+    "Reading SFML Touchscreen States",
     "C++ 20 So Far",
-    "Reading SFML Input States",
     "Managing Game State",
     "Making Our Game Testable",
     "Making Game State Allocator Aware",
@@ -74,13 +111,53 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 
   std::array<bool, steps.size()> states{};
 
+
+  std::vector<Joystick> joySticks;
+
+
   sf::Clock deltaClock;
+
+  bool joystickEvent{ false };
+
   while (window.isOpen()) {
     sf::Event event{};
     while (window.pollEvent(event)) {
       ImGui::SFML::ProcessEvent(event);
 
-      if (event.type == sf::Event::Closed) { window.close(); }
+      switch (event.type) {
+      case sf::Event::Closed:
+        window.close();
+        break;
+      case sf::Event::JoystickConnected: {
+        joystickEvent = true;
+        break;
+      }
+      case sf::Event::JoystickDisconnected: {
+        joystickEvent = true;
+        break;
+      }
+      case sf::Event::JoystickButtonPressed: {
+        auto &js = joystickById(joySticks, event.joystickButton.joystickId);
+        joystickEvent = true;
+        js.buttonState[event.joystickButton.button] = true;
+        break;
+      }
+      case sf::Event::JoystickButtonReleased: {
+        auto &js = joystickById(joySticks, event.joystickButton.joystickId);
+        joystickEvent = true;
+        js.buttonState[event.joystickButton.button] = false;
+        break;
+      }
+      case sf::Event::JoystickMoved: {
+        auto &js = joystickById(joySticks, event.joystickMove.joystickId);
+        joystickEvent = true;
+        js.axisPosition[event.joystickMove.axis] = event.joystickMove.position;
+        break;
+      }
+
+      default:
+        spdlog::trace("Unhandled Event Type");
+      }
     }
 
     ImGui::SFML::Update(window, deltaClock.restart());
@@ -88,12 +165,22 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] const char **argv)
 
     ImGui::Begin("The Plan");
 
-    size_t index = 0;
-    for (const auto &step : steps) {
-      ImGui::Checkbox(fmt::format("{}: {}", index, step).c_str(), &states[index]);
+    for (std::size_t index = 0; const auto &step : steps) {
+      ImGui::Checkbox(fmt::format("{} : {}", index, step).c_str(), &states.at(index));
       ++index;
     }
 
+    ImGui::End();
+
+    ImGui::Begin("Joystick");
+
+    ImGui::TextUnformatted(fmt::format("JS Event: {}", joystickEvent).c_str());
+
+    if (!joySticks.empty()) {
+      for (std::size_t button = 0; button < sf::Joystick::ButtonCount; ++button) {
+        ImGui::TextUnformatted(fmt::format("{}: {}", button, joySticks[0].buttonState[button]).c_str());
+      }
+    }
 
     ImGui::End();
 
