@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 #include <array>
 
 #include <spdlog/spdlog.h>
@@ -80,7 +79,7 @@ int main(int argc, const char **argv)
 
   spdlog::set_level(spdlog::level::debug);
   // Use the default logger (stdout, multi-threaded, colored)
-  spdlog::info("Hello, {}!", "World42");
+  spdlog::info("Hello, {}!", "World");
 
 
   sf::RenderWindow window(
@@ -117,7 +116,7 @@ int main(int argc, const char **argv)
 
   sf::Clock deltaClock;
 
-  bool joystickEvent{ false };
+  bool joystickEvent{false};
 
   while (window.isOpen()) {
     sf::Event event{};
@@ -173,7 +172,7 @@ int main(int argc, const char **argv)
     ImGui::End();
 
     ImGui::Begin("Joystick");
-
+    
     ImGui::TextUnformatted(fmt::format("JS Event: {}", joystickEvent).c_str());
 
     if (!joySticks.empty()) {

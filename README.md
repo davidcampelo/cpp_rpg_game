@@ -1,5 +1,11 @@
 # C++ RPG game project
 
+[![codecov](https://codecov.io/gh/lefticus/cpp_weekly_game_project/branch/master/graph/badge.svg)](https://codecov.io/gh/lefticus/cpp_weekly_game_project)
+
+[![Build Status](https://travis-ci.org/lefticus/cpp_weekly_game_project.svg?branch=master)](https://travis-ci.org/lefticus/cpp_weekly_game_project)
+
+[![Build status](https://ci.appveyor.com/api/projects/status/ro4lbfoa7n0sy74c/branch/master?svg=true)](https://ci.appveyor.com/project/lefticus/cpp-weekly-game-project/branch/master)
+
 This implementation is based on the C++ weekly series of @lefticus: https://www.youtube.com/playlist?list=PLs3KjaCtOwSZ-74ryhrQQkqr8kZW50_mZ
 This implementation is based on a fork of https://github.com/lefticus/cpp_starter_project
 
