@@ -2,6 +2,7 @@
 #include <array>
 
 #include <spdlog/spdlog.h>
+
 #include <imgui.h>
 #include <imgui-SFML.h>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -9,8 +10,10 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/CircleShape.hpp>
 
-
 #include <docopt/docopt.h>
+
+#include "Input.hpp"
+#include "ImGuiHelpers.hpp"
 
 static constexpr auto WINDOW_FRAME_RATE = 60;
 static constexpr auto MIN_SCALE_FACTOR = 1;
@@ -28,34 +31,6 @@ static constexpr auto USAGE =
           --scale=SCALE     Scaling factor [default: 2].
 )";
 
-
-struct Joystick
-{
-  unsigned int id;
-  std::string name;
-  std::array<bool, sf::Joystick::ButtonCount> buttonState;
-  std::array<float, sf::Joystick::AxisCount> axisPosition;
-};
-
-
-Joystick loadJoystick(unsigned int id)
-{
-  const auto identification = sf::Joystick::getIdentification(id);
-  return Joystick{ id, static_cast<std::string>(identification.name), {}, {} };
-}
-
-
-Joystick &joystickById(std::vector<Joystick> &joysticks, unsigned int id)
-{
-  auto joystick = std::find_if(begin(joysticks), end(joysticks), [id](const auto &j) { return j.id == id; });
-
-  if (joystick == joysticks.end()) {
-    joysticks.push_back(loadJoystick(id));
-    return joysticks.back();
-  } else {
-    return *joystick;
-  }
-}
 
 int main(int argc, const char **argv)
 {
@@ -111,12 +86,12 @@ int main(int argc, const char **argv)
   std::array<bool, steps.size()> states{};
 
 
-  std::vector<Joystick> joySticks;
+  std::vector<Game::Joystick> joySticks;
 
 
   sf::Clock deltaClock;
 
-  bool joystickEvent{false};
+  bool joystickEvent{ false };
 
   while (window.isOpen()) {
     sf::Event event{};
@@ -136,19 +111,19 @@ int main(int argc, const char **argv)
         break;
       }
       case sf::Event::JoystickButtonPressed: {
-        auto &js = joystickById(joySticks, event.joystickButton.joystickId);
+        auto &js = Game::joystickById(joySticks, event.joystickButton.joystickId);
         joystickEvent = true;
         js.buttonState[event.joystickButton.button] = true;
         break;
       }
       case sf::Event::JoystickButtonReleased: {
-        auto &js = joystickById(joySticks, event.joystickButton.joystickId);
+        auto &js = Game::joystickById(joySticks, event.joystickButton.joystickId);
         joystickEvent = true;
         js.buttonState[event.joystickButton.button] = false;
         break;
       }
       case sf::Event::JoystickMoved: {
-        auto &js = joystickById(joySticks, event.joystickMove.joystickId);
+        auto &js = Game::joystickById(joySticks, event.joystickMove.joystickId);
         joystickEvent = true;
         js.axisPosition[event.joystickMove.axis] = event.joystickMove.position;
         break;
@@ -171,13 +146,18 @@ int main(int argc, const char **argv)
 
     ImGui::End();
 
-    ImGui::Begin("Joystick");
-    
-    ImGui::TextUnformatted(fmt::format("JS Event: {}", joystickEvent).c_str());
+    ImGui::Begin("Joystick---->>");
+
+    ImGuiHelper::Text("JS Event: {}", joystickEvent);
 
     if (!joySticks.empty()) {
-      for (std::size_t button = 0; button < sf::Joystick::ButtonCount; ++button) {
-        ImGui::TextUnformatted(fmt::format("{}: {}", button, joySticks[0].buttonState[button]).c_str());
+      for (unsigned int button = 0; button < joySticks[0].buttonCount; ++button) {
+        ImGuiHelper::Text("{}: {}", button, joySticks[0].buttonState[button]);
+      }
+
+      for (unsigned int axis = 0; axis < sf::Joystick::AxisCount; ++axis) {
+        ImGuiHelper::Text(
+          "{}: {}", Game::toString(static_cast<sf::Joystick::Axis>(axis)), joySticks[0].axisPosition[axis]);
       }
     }
 
