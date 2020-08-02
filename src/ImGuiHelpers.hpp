@@ -1,5 +1,5 @@
-#ifndef HELPERS_HPP
-#define HELPERS_HPP
+#ifndef CPP_RPG_GAME_HELPERS_HPP
+#define CPP_RPG_GAME_HELPERS_HPP
 
 #include <imgui.h>
 #include <string_view>
@@ -7,11 +7,11 @@
 
 namespace ImGuiHelper {
 
-template<typename... Param> static void Text(std::string_view format, Param &&... param)
+template<typename... Param> static void Text(std::string_view format, Param && ... param)
 {
   ImGui::TextUnformatted(fmt::format(format, std::forward<Param>(param)...).c_str());
 }
 
 }// namespace ImGuiHelper
 
-#endif// HELPERS_HPP
+#endif// CPP_RPG_GAME_HELPERS_HPP

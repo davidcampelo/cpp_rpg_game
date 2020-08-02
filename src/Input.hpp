@@ -1,13 +1,15 @@
 
 
-#ifndef INPUT_HPP
-#define INPUT_HPP
+#ifndef CPP_RPG_GAME_INPUT_HPP
+#define CPP_RPG_GAME_INPUT_HPP
 
 #include <SFML/Window/Joystick.hpp>
 #include <string>
 #include <array>
 
-namespace Game {
+
+namespace Game
+{
 
 struct Joystick
 {
@@ -25,40 +27,39 @@ Joystick loadJoystick(unsigned int id)
   Joystick js{ id, static_cast<std::string>(identification.name), sf::Joystick::getButtonCount(id), {}, {} };
 
   for (unsigned int button = 0; button < js.buttonCount; ++button) {
-    js.buttonState[button] = sf::Joystick::isButtonPressed(js.id, button);
+    js.buttonState[button] = sf::Joystick::isButtonPressed(id, button);
   }
 
   for (unsigned int axis = 0; axis < sf::Joystick::AxisCount; ++axis) {
-    js.axisPosition[axis] = sf::Joystick::getAxisPosition(js.id, static_cast<sf::Joystick::Axis>(axis));
+    js.axisPosition[axis] = sf::Joystick::getAxisPosition(id, static_cast<sf::Joystick::Axis>(axis));
   }
 
   return js;
 }
 
-constexpr std::string_view toString(sf::Joystick::Axis axis)
+constexpr std::string_view toString(const sf::Joystick::Axis axis)
 {
   switch (axis) {
-  case sf::Joystick::PovX:
+  case sf::Joystick::Axis::PovX:
     return "PovX";
-  case sf::Joystick::PovY:
+  case sf::Joystick::Axis::PovY:
     return "PovY";
-  case sf::Joystick::R:
+  case sf::Joystick::Axis::R:
     return "R";
-  case sf::Joystick::U:
+  case sf::Joystick::Axis::U:
     return "U";
-  case sf::Joystick::V:
+  case sf::Joystick::Axis::V:
     return "V";
-  case sf::Joystick::X:
+  case sf::Joystick::Axis::X:
     return "X";
-  case sf::Joystick::Y:
+  case sf::Joystick::Axis::Y:
     return "Y";
-  case sf::Joystick::Z:
+  case sf::Joystick::Axis::Z:
     return "Z";
-  default:
-    break;
   }
   abort();
 }
+
 
 Joystick &joystickById(std::vector<Joystick> &joysticks, unsigned int id)
 {
@@ -71,6 +72,7 @@ Joystick &joystickById(std::vector<Joystick> &joysticks, unsigned int id)
     return *joystick;
   }
 }
+}
 
 }// namespace Game
-#endif// INPUT_HPP
+#endif// CPP_RPG_GAME_INPUT_HPP

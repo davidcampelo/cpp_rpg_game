@@ -37,7 +37,7 @@ int main(int argc, const char **argv)
   std::map<std::string, docopt::value> args = docopt::docopt(USAGE,
     { std::next(argv), std::next(argv, argc) },
     true,// show help if requested
-    "Game 0.4");// version string
+    "Game 0.5");// version string
 
   const auto width = args["--width"].asLong();
   const auto height = args["--height"].asLong();
@@ -71,6 +71,8 @@ int main(int argc, const char **argv)
     "Finding Errors As Soon As Possible",
     "Handling Command Line Parameters",
     "Reading SFML Joystick States",
+    "Displaying Joystick States",
+    "Dealing With Game Events",
     "Reading SFML Keyboard States",
     "Reading SFML Mouse States",
     "Reading SFML Touchscreen States",
@@ -91,7 +93,7 @@ int main(int argc, const char **argv)
 
   sf::Clock deltaClock;
 
-  bool joystickEvent{ false };
+  bool joystickEvent{false};
 
   while (window.isOpen()) {
     sf::Event event{};
